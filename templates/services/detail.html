@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ service.title }} — SkillBridge{% endblock %}
+{% block body_class %}sb-detail{% endblock %}
+
+{% block content %}
+<section class="sb-section-sm">
+  <div class="container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+      <ol class="breadcrumb mb-0 small">
+        <li class="breadcrumb-item"><a href="{% url 'services:browse' %}">Services</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'services:browse' %}?category={{ service.category.slug }}">{{ service.category.name }}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ service.title|truncatechars:40 }}</li>
+      </ol>
+    </nav>
+
+    <div class="row g-5">
+      <div class="col-lg-7">
+        <div class="sb-detail-media mb-4">
+          {% if service.image %}
+            <img src="{{ service.image.url }}" alt="{{ service.title }}">
+          {% else %}
+            <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1200&q=70" alt="{{ service.title }}">
+          {% endif %}
+        </div>
+
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+          <span class="sb-chip"><i class="bi {{ service.category.icon|default:'bi-tag' }}"></i> {{ service.category.name|default:"General" }}</span>
+          <span class="sb-availability sb-availability--{{ service.availability }}"><i class="bi bi-circle-fill"></i> {{ service.get_availability_display }}</span>
+          <span class="sb-chip"><i class="bi bi-calendar3"></i> Listed {{ service.created_at|date:"M j, Y" }}</span>
+        </div>
+
+        <h1 class="fw-bold mb-3">{{ service.title }}</h1>
+
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="sb-rating-pill"><i class="bi bi-star-fill"></i> {{ avg_rating|floatformat:1 }}</div>
+          <span class="sb-text-muted small">({{ review_count }} review{{ review_count|pluralize }})</span>
+        </div>
+
+        <h5 class="fw-bold mb-2">About this service</h5>
+        <p class="sb-text-muted" style="white-space:pre-line">{{ service.description }}</p>
+
+        <!-- Reviews -->
+        <div class="mt-5">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0">Reviews</h5>
+            {% if user.is_authenticated and not is_owner %}
+              <a class="sb-btn sb-btn-outline-primary sb-btn-sm" href="{% url 'reviews:create' provider_pk=service.provider.pk %}">Write a review</a>
+            {% endif %}
+          </div>
+          {% for r in reviews %}
+            <div class="sb-review">
+              <span class="sb-avatar sb-avatar--text sb-avatar--sm">{{ r.client.first_name|default:r.client.username|slice:":1" }}</span>
+              <div class="flex-grow-1">
+                <div class="d-flex flex-wrap justify-content-between gap-2">
+                  <div class="fw-bold small">{{ r.client.get_full_name|default:r.client.username }}</div>
+                  <div class="sb-text-soft small">{{ r.created_at|date:"M j, Y" }}</div>
+                </div>
+                <div class="sb-stars mb-1" style="font-size:.9rem">
+                  {% for i in "12345" %}
+                    <i class="bi bi-star-fill {% if forloop.counter > r.rating %}filled{% endif %}"></i>
+                  {% endfor %}
+                </div>
+                <p class="mb-0 small sb-text-muted">{{ r.comment|default:"No comment." }}</p>
+              </div>
+            </div>
+          {% empty %}
+            <div class="sb-empty py-4">
+              <div class="sb-empty-icon" style="width:64px;height:64px;font-size:1.6rem"><i class="bi bi-chat-left-text"></i></div>
+              <p class="mb-0">No reviews yet. Be the first to share your experience!</p>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="col-lg-5">
+        <div class="sb-card p-4 sticky-lg-top" style="top:88px">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="fw-extra fs-3">${{ service.price|floatformat:2 }}</span>
+            <span class="sb-text-muted small">one-time project</span>
+          </div>
+
+          <div class="d-flex align-items-center gap-3 py-3 border-top border-bottom mb-4">
+            <a href="{% url 'accounts:public_profile' username=service.provider.username %}">
+              {% if service.provider.profile_image %}
+                <img src="{{ service.provider.profile_image.url }}" alt="{{ service.provider.username }}" class="sb-avatar sb-avatar--lg">
+              {% else %}
+                <span class="sb-avatar sb-avatar--text sb-avatar--lg">{{ service.provider.first_name|default:service.provider.username|slice:":1" }}</span>
+              {% endif %}
+            </a>
+            <div class="flex-grow-1">
+              <a href="{% url 'accounts:public_profile' username=service.provider.username %}" class="fw-bold text-reset">{{ service.provider.get_full_name|default:service.provider.username }}</a>
+              <div class="sb-text-muted small">{{ service.provider.occupation|default:"Student provider" }}</div>
+            </div>
+            <div class="sb-rating-pill"><i class="bi bi-star-fill"></i> {{ avg_rating|floatformat:1 }}</div>
+          </div>
+
+          <ul class="list-unstyled d-flex flex-column gap-3 small mb-4">
+            <li class="d-flex align-items-center gap-2"><i class="bi bi-shield-check text-primary"></i> Verified student provider</li>
+            <li class="d-flex align-items-center gap-2"><i class="bi bi-clock-history text-primary"></i> Typically responds within a day</li>
+            <li class="d-flex align-items-center gap-2"><i class="bi bi-chat-dots text-primary"></i> Free communication before booking</li>
+          </ul>
+
+          {% if user.is_authenticated and is_owner %}
+            <div class="d-grid gap-2">
+              <a href="{% url 'services:update' pk=service.pk %}" class="sb-btn sb-btn-outline-primary"><i class="bi bi-pencil"></i> Edit service</a>
+              <form method="post" action="{% url 'services:delete' pk=service.pk %}" data-confirm-form data-confirm-message="Delete this service permanently?">
+                {% csrf_token %}
+                <button type="submit" class="sb-btn sb-btn-danger w-100"><i class="bi bi-trash"></i> Delete service</button>
+              </form>
+            </div>
+          {% elif user.is_authenticated %}
+            {% if existing_booking %}
+              <div class="alert alert-info sb-card--flat" style="border-radius:12px">
+                <i class="bi bi-info-circle"></i> You have a
+                <a href="{% url 'bookings:detail' pk=existing_booking.pk %}" class="fw-semibold">{{ existing_booking.get_status_display }}</a>
+                booking for this service.
+              </div>
+            {% else %}
+              <a href="{% url 'bookings:create' service_pk=service.pk %}" class="sb-btn sb-btn-primary sb-btn-lg w-100 mb-2">
+                <i class="bi bi-calendar2-plus"></i> Book this service
+              </a>
+            {% endif %}
+            <button type="button" class="sb-btn sb-btn-ghost w-100 {% if in_wishlist %}active{% endif %}" data-wishlist="{{ service.pk }}">
+              <i class="bi bi-heart{% if in_wishlist %}-fill{% endif %}"></i>
+              <span class="wish-label">{% if in_wishlist %}Saved to wishlist{% else %}Save to wishlist{% endif %}</span>
+            </button>
+          {% else %}
+            <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="sb-btn sb-btn-primary sb-btn-lg w-100 mb-2">
+              <i class="bi bi-calendar2-plus"></i> Log in to book
+            </a>
+            <button type="button" class="sb-btn sb-btn-ghost w-100" onclick="window.SKILLBRIDGE.loggedIn || (window.location = window.SKILLBRIDGE.loginUrl)">
+              <i class="bi bi-heart"></i> Save to wishlist
+            </button>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Similar services -->
+    {% if similar %}
+      <div class="mt-5 pt-4">
+        <h4 class="fw-bold mb-4">Similar services</h4>
+        <div class="row g-4">
+          {% for s in similar %}
+            <div class="col-md-6 col-lg-3">
+              {% include 'services/partials/service_card.html' with service=s %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

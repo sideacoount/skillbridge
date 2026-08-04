@@ -1,0 +1,66 @@
+<footer class="sb-footer">
+  <div class="container py-5">
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <a class="sb-brand mb-3" href="{% url 'services:home' %}">
+          <span class="sb-brand-mark"><i class="bi bi-lightning-charge-fill"></i></span>
+          <span class="sb-brand-text">Skill<span>Bridge</span></span>
+        </a>
+        <p class="sb-footer-muted">Connecting skilled students with clients. Affordable, trusted, human-made services — discovered in minutes.</p>
+        <div class="d-flex gap-2 mt-3">
+          <a href="#" class="sb-social" aria-label="Twitter"><i class="bi bi-twitter-x"></i></a>
+          <a href="#" class="sb-social" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+          <a href="#" class="sb-social" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+          <a href="#" class="sb-social" aria-label="GitHub"><i class="bi bi-github"></i></a>
+        </div>
+      </div>
+
+      <div class="col-6 col-lg-2">
+        <h6 class="sb-footer-title">Platform</h6>
+        <ul class="sb-footer-links">
+          <li><a href="{% url 'services:browse' %}">Browse services</a></li>
+          <li><a href="{% url 'services:providers' %}">Find providers</a></li>
+          <li><a href="{% url 'services:browse' %}?sort=rating">Top rated</a></li>
+          <li><a href="{% url 'services:wishlist' %}">Wishlist</a></li>
+        </ul>
+      </div>
+
+      <div class="col-6 col-lg-2">
+        <h6 class="sb-footer-title">For students</h6>
+        <ul class="sb-footer-links">
+          <li><a href="{% url 'accounts:register' %}">Become a provider</a></li>
+          <li><a href="{% url 'services:create' %}">List a service</a></li>
+          <li><a href="{% url 'accounts:edit_profile' %}">Build your profile</a></li>
+          <li><a href="{% url 'bookings:incoming' %}">Manage bookings</a></li>
+        </ul>
+      </div>
+
+      <div class="col-6 col-lg-2">
+        <h6 class="sb-footer-title">Company</h6>
+        <ul class="sb-footer-links">
+          <li><a href="#contact">Contact us</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#">Privacy policy</a></li>
+          <li><a href="#">Terms of service</a></li>
+        </ul>
+      </div>
+
+      <div class="col-6 col-lg-2">
+        <h6 class="sb-footer-title">Contact</h6>
+        <ul class="sb-footer-links">
+          <li><a href="mailto:hello@skillbridge.app"><i class="bi bi-envelope"></i> hello@skillbridge.app</a></li>
+          <li><a href="#"><i class="bi bi-geo-alt"></i> Nairobi, Kenya</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sb-footer-bottom">
+      <span>© {% now "Y" %} SkillBridge. Built by students, for everyone.</span>
+      <div class="d-flex gap-3">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Cookies</a>
+      </div>
+    </div>
+  </div>
+</footer>

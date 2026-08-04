@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Browse services — SkillBridge{% endblock %}
+{% block body_class %}sb-browse{% endblock %}
+
+{% block content %}
+<div class="sb-page-header">
+  <div class="container">
+    <span class="sb-eyebrow mb-2"><i class="bi bi-grid"></i> The marketplace</span>
+    <h1 class="sb-section-title mt-2">Browse services</h1>
+    <p class="sb-section-sub mb-0">Search by skill, name, category or price — and filter until you find the perfect match.</p>
+  </div>
+</div>
+
+<section class="sb-section-sm">
+  <div class="container">
+    <!-- Search + filters -->
+    <div class="sb-filter-bar mb-4">
+      <form id="browseFilters" method="get" action="{% url 'services:browse' %}">
+        <div class="row g-3 align-items-end">
+          <div class="col-12 col-md-4 col-lg-5">
+            <label class="sb-form-label" for="liveSearch"><i class="bi bi-search"></i> Search</label>
+            <input type="text" id="liveSearch" name="q" value="{{ query }}" class="form-control" placeholder="Search skills, names, categories…">
+          </div>
+          <div class="col-6 col-md-3 col-lg-2">
+            <label class="sb-form-label">Category</label>
+            <select name="category" class="form-select filter-select">
+              <option value="">All categories</option>
+              {% for cat in all_categories %}
+                <option value="{{ cat.slug }}" {% if request.GET.category == cat.slug %}selected{% endif %}>{{ cat.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-6 col-md-3 col-lg-2">
+            <label class="sb-form-label">Price</label>
+            <div class="d-flex gap-2">
+              <input type="number" name="min_price" value="{{ request.GET.min_price }}" class="form-control" placeholder="Min" min="0">
+              <input type="number" name="max_price" value="{{ request.GET.max_price }}" class="form-control" placeholder="Max" min="0">
+            </div>
+          </div>
+          <div class="col-6 col-md-3 col-lg-1">
+            <label class="sb-form-label">Rating</label>
+            <select name="min_rating" class="form-select filter-select">
+              <option value="">Any</option>
+              <option value="4" {% if request.GET.min_rating == '4' %}selected{% endif %}>4+</option>
+              <option value="3" {% if request.GET.min_rating == '3' %}selected{% endif %}>3+</option>
+              <option value="2" {% if request.GET.min_rating == '2' %}selected{% endif %}>2+</option>
+              <option value="1" {% if request.GET.min_rating == '1' %}selected{% endif %}>1+</option>
+            </select>
+          </div>
+          <div class="col-6 col-md-3 col-lg-1">
+            <label class="sb-form-label">Availability</label>
+            <select name="availability" class="form-select filter-select">
+              <option value="">Any</option>
+              <option value="available" {% if request.GET.availability == 'available' %}selected{% endif %}>Available</option>
+              <option value="busy" {% if request.GET.availability == 'busy' %}selected{% endif %}>Busy</option>
+              <option value="limited" {% if request.GET.availability == 'limited' %}selected{% endif %}>Limited</option>
+            </select>
+          </div>
+          <div class="col-6 col-md-3 col-lg-1">
+            <label class="sb-form-label">Sort</label>
+            <select name="sort" class="form-select filter-select">
+              <option value="newest" {% if request.GET.sort == 'newest' or not request.GET.sort %}selected{% endif %}>Newest</option>
+              <option value="price_low" {% if request.GET.sort == 'price_low' %}selected{% endif %}>Price ↑</option>
+              <option value="price_high" {% if request.GET.sort == 'price_high' %}selected{% endif %}>Price ↓</option>
+              <option value="rating" {% if request.GET.sort == 'rating' %}selected{% endif %}>Top rated</option>
+              <option value="popular" {% if request.GET.sort == 'popular' %}selected{% endif %}>Most booked</option>
+            </select>
+          </div>
+          {% if active_filters %}
+            <div class="col-12 col-md-12 col-lg-12 d-flex justify-content-end">
+              <a href="{% url 'services:browse' %}" class="sb-btn sb-btn-ghost sb-btn-sm"><i class="bi bi-x-lg"></i> Clear filters</a>
+            </div>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+
+    <!-- Results header -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h6 class="mb-0 fw-semibold sb-text-muted">
+        <span id="sbResultsCount">{{ page_obj.paginator.count }}</span> service{% if page_obj.paginator.count != 1 %}s{% endif %} found
+        {% if query %}<span class="sb-chip ms-2"><i class="bi bi-search"></i> “{{ query }}”</span>{% endif %}
+      </h6>
+    </div>
+
+    <!-- Grid -->
+    <div class="row g-4" id="browseGrid">
+      <div class="sb-skeleton-row d-none"></div>
+      {% include 'services/partials/service_cards.html' %}
+    </div>
+
+    <!-- Pagination (server side; JS replaces grid for live search) -->
+    {% if page_obj.has_other_pages %}
+      <nav class="mt-5" aria-label="Service pages">
+        <ul class="pagination sb-pagination">
+          {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if qs_without_page %}&{{ qs_without_page }}{% endif %}" aria-label="Previous"><i class="bi bi-chevron-left"></i></a></li>
+          {% endif %}
+          {% for num in page_obj.paginator.page_range %}
+            <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+              <a class="page-link" href="?page={{ num }}{% if qs_without_page %}&{{ qs_without_page }}{% endif %}">{{ num }}</a>
+            </li>
+          {% endfor %}
+          {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if qs_without_page %}&{{ qs_without_page }}{% endif %}" aria-label="Next"><i class="bi bi-chevron-right"></i></a></li>
+          {% endif %}
+        </ul>
+      </nav>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

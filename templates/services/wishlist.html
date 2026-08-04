@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Wishlist — SkillBridge{% endblock %}
+{% block body_class %}sb-dash-body{% endblock %}
+
+{% block content %}
+<div class="sb-dash-wrap">
+  {% include 'dashboard/includes/sidebar.html' %}
+  <div class="sb-sidebar-overlay"></div>
+  <main class="sb-dash-main">
+    <div class="sb-dash-topbar">
+      <div>
+        <h4 class="fw-bold mb-1">Wishlist</h4>
+        <div class="sb-text-muted small">Services you've saved for later.</div>
+      </div>
+    </div>
+
+    {% if wishlist_items %}
+      <div class="row g-4">
+        {% for item in wishlist_items %}
+          <div class="col-md-6 col-lg-4">
+            {% include 'services/partials/service_card.html' with service=item.service %}
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="sb-card sb-empty">
+        <div class="sb-empty-icon"><i class="bi bi-heart"></i></div>
+        <h4 class="fw-bold">Nothing saved yet</h4>
+        <p class="mb-0">Tap the heart on any service to save it here.</p>
+        <a href="{% url 'services:browse' %}" class="sb-btn sb-btn-primary mt-3">Browse services</a>
+      </div>
+    {% endif %}
+  </main>
+</div>
+{% endblock %}

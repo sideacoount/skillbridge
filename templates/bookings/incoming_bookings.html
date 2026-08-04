@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Incoming bookings — SkillBridge{% endblock %}
+{% block body_class %}sb-dash-body{% endblock %}
+
+{% block content %}
+<div class="sb-dash-wrap">
+  {% include 'dashboard/includes/sidebar.html' %}
+  <div class="sb-sidebar-overlay"></div>
+  <main class="sb-dash-main">
+    <div class="sb-dash-topbar">
+      <div>
+        <h4 class="fw-bold mb-1">Incoming bookings</h4>
+        <div class="sb-text-muted small">Requests from clients waiting for your response.</div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      {% for b in bookings %}
+        <div class="col-md-6">
+          <div class="sb-card p-4">
+            <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+              <div class="d-flex align-items-center gap-3">
+                {% if b.client.profile_image %}
+                  <img src="{{ b.client.profile_image.url }}" alt="" class="sb-avatar sb-avatar--lg">
+                {% else %}
+                  <span class="sb-avatar sb-avatar--text sb-avatar--lg">{{ b.client.first_name|default:b.client.username|slice:":1" }}</span>
+                {% endif %}
+                <div>
+                  <div class="fw-bold">{{ b.client.get_full_name|default:b.client.username }}</div>
+                  <div class="sb-text-muted small">Requested {{ b.created_at|timesince }} ago</div>
+                </div>
+              </div>
+              <span class="sb-badge sb-badge--{{ b.status }}"><i class="bi bi-circle-fill"></i> {{ b.get_status_display }}</span>
+            </div>
+
+            <a href="{% url 'services:detail' pk=b.service.pk %}" class="fw-semibold text-reset">{{ b.service.title }}</a>
+            <div class="sb-text-muted small mt-1 mb-3">
+              <i class="bi bi-calendar3"></i> {{ b.preferred_date|default:"No preferred date" }}
+              {% if b.budget %} · <i class="bi bi-cash"></i> Budget ${{ b.budget }}{% endif %}
+            </div>
+            {% if b.description %}
+              <div class="small mb-3 p-3 rounded-3" style="background:var(--sb-card-2)">
+                <span class="fw-semibold d-block mb-1">Client's message</span>
+                {{ b.description|truncatechars:220 }}
+              </div>
+            {% endif %}
+
+            <div class="d-flex gap-2">
+              <a href="{% url 'bookings:detail' pk=b.pk %}" class="sb-btn sb-btn-ghost sb-btn-sm flex-fill"><i class="bi bi-eye"></i> Details</a>
+              {% if b.status == 'pending' %}
+                <form method="post" action="{% url 'bookings:update_status' pk=b.pk %}" class="flex-fill">
+                  {% csrf_token %}
+                  <input type="hidden" name="status" value="accepted">
+                  <button type="submit" class="sb-btn sb-btn-success sb-btn-sm w-100"><i class="bi bi-check-lg"></i> Accept</button>
+                </form>
+              {% endif %}
+              {% if b.status == 'accepted' %}
+                <form method="post" action="{% url 'bookings:update_status' pk=b.pk %}" class="flex-fill">
+                  {% csrf_token %}
+                  <input type="hidden" name="status" value="completed">
+                  <button type="submit" class="sb-btn sb-btn-success sb-btn-sm w-100"><i class="bi bi-check2-circle"></i> Complete</button>
+                </form>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="col-12">
+          <div class="sb-card sb-empty">
+            <div class="sb-empty-icon"><i class="bi bi-inbox"></i></div>
+            <h4 class="fw-bold">No incoming bookings</h4>
+            <p class="mb-0">When clients book your services, they'll appear here.</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </main>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My bookings — SkillBridge{% endblock %}
+{% block body_class %}sb-dash-body{% endblock %}
+
+{% block content %}
+<div class="sb-dash-wrap">
+  {% include 'dashboard/includes/sidebar.html' %}
+  <div class="sb-sidebar-overlay"></div>
+  <main class="sb-dash-main">
+    <div class="sb-dash-topbar">
+      <div>
+        <h4 class="fw-bold mb-1">My bookings</h4>
+        <div class="sb-text-muted small">Track every service you've requested.</div>
+      </div>
+      <a href="{% url 'services:browse' %}" class="sb-btn sb-btn-primary sb-btn-sm"><i class="bi bi-plus-lg"></i> Book a service</a>
+    </div>
+
+    <div class="row g-4">
+      {% for b in bookings %}
+        <div class="col-md-6">
+          <a href="{% url 'bookings:detail' pk=b.pk %}" class="text-decoration-none">
+            <div class="sb-card p-3 d-flex gap-3">
+              {% if b.service.image %}
+                <img src="{{ b.service.image.url }}" alt="" style="width:86px;height:86px;object-fit:cover;border-radius:14px">
+              {% else %}
+                <span class="sb-stat-icon sb-stat-icon--blue" style="width:86px;height:86px;border-radius:14px"><i class="bi bi-image fs-3"></i></span>
+              {% endif %}
+              <div class="flex-grow-1 min-w-0">
+                <div class="d-flex justify-content-between align-items-start gap-2">
+                  <h6 class="fw-bold mb-1 text-reset">{{ b.service.title|truncatechars:44 }}</h6>
+                  <span class="sb-badge sb-badge--{{ b.status }}"><i class="bi bi-circle-fill"></i> {{ b.get_status_display }}</span>
+                </div>
+                <div class="sb-text-muted small mb-1">
+                  <i class="bi bi-person"></i> {{ b.provider.get_full_name|default:b.provider.username }}
+                </div>
+                <div class="sb-text-muted small mb-2">
+                  <i class="bi bi-calendar3"></i> {{ b.preferred_date|default:"Date not set" }} · <i class="bi bi-cash"></i> ${{ b.budget|default:b.service.price|floatformat:0 }}
+                </div>
+                <div class="sb-text-muted small">
+                  <i class="bi bi-clock"></i> Requested {{ b.created_at|timesince }} ago
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+      {% empty %}
+        <div class="col-12">
+          <div class="sb-card sb-empty">
+            <div class="sb-empty-icon"><i class="bi bi-calendar2-plus"></i></div>
+            <h4 class="fw-bold">No bookings yet</h4>
+            <p class="mb-0">Find a service you love and book it in a few clicks.</p>
+            <a href="{% url 'services:browse' %}" class="sb-btn sb-btn-primary mt-3">Browse services</a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </main>
+</div>
+{% endblock %}

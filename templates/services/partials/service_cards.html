@@ -1,0 +1,15 @@
+{% if services %}
+  {% for service in services %}
+    <div class="col-12 col-sm-6 col-lg-4">
+      {% include 'services/partials/service_card.html' with service=service %}
+    </div>
+  {% endfor %}
+{% else %}
+  <div class="col-12">
+    <div class="sb-empty">
+      <div class="sb-empty-icon"><i class="bi bi-search"></i></div>
+      <h4 class="fw-bold">No services found</h4>
+      <p class="mb-0">Try a different keyword or loosen your filters.</p>
+    </div>
+  </div>
+{% endif %}

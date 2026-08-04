@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Providers — SkillBridge{% endblock %}
+
+{% block content %}
+<div class="sb-page-header">
+  <div class="container">
+    <span class="sb-eyebrow mb-2"><i class="bi bi-people"></i> Trusted talent</span>
+    <h1 class="sb-section-title mt-2">Meet our providers</h1>
+    <p class="sb-section-sub mb-0">Verified students ready to deliver quality work.</p>
+  </div>
+</div>
+
+<section class="sb-section-sm">
+  <div class="container">
+    <form method="get" class="sb-search-box mb-4 mx-auto" style="max-width:520px">
+      <i class="bi bi-search"></i>
+      <input type="text" name="q" value="{{ query }}" placeholder="Search providers by name or skill…" aria-label="Search providers">
+      <button type="submit" class="sb-btn sb-btn-primary">Search</button>
+    </form>
+
+    <div class="row g-4">
+      {% for p in providers %}
+        <div class="col-md-6 col-lg-4">
+          <a href="{% url 'accounts:public_profile' username=p.username %}" class="text-decoration-none">
+            <div class="sb-card sb-provider-card">
+              {% if p.profile_image %}
+                <img src="{{ p.profile_image.url }}" alt="{{ p.username }}" class="sb-avatar sb-avatar--lg mb-3">
+              {% else %}
+                <span class="sb-avatar sb-avatar--text sb-avatar--lg mb-3">{{ p.first_name|default:p.username|slice:":1" }}</span>
+              {% endif %}
+              <h5 class="fw-bold mb-1 text-reset">{{ p.get_full_name|default:p.username }}</h5>
+              <div class="sb-text-muted small mb-2">{{ p.occupation|default:"Student provider" }}</div>
+              <div class="d-flex justify-content-center gap-2 flex-wrap small mb-3">
+                <span class="sb-rating-pill"><i class="bi bi-star-fill"></i> {{ p.avg_rating|floatformat:1|default:"New" }}</span>
+                <span class="sb-chip"><i class="bi bi-briefcase"></i> {{ p.completed }} jobs</span>
+                <span class="sb-chip"><i class="bi bi-grid-1x2"></i> {{ p.service_count }} service{{ p.service_count|pluralize }}</span>
+              </div>
+              <div class="d-flex gap-1 justify-content-center flex-wrap">
+                {% for s in p.skills.all|slice:":3" %}
+                  <span class="sb-chip">{{ s.name }}</span>
+                {% endfor %}
+              </div>
+            </div>
+          </a>
+        </div>
+      {% empty %}
+        <div class="col-12">
+          <div class="sb-empty">
+            <div class="sb-empty-icon"><i class="bi bi-people"></i></div>
+            <h4 class="fw-bold">No providers found</h4>
+            <p class="mb-0">Try a different search.</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    {% if page_obj.has_other_pages %}
+      <nav class="mt-5" aria-label="Provider pages">
+        <ul class="pagination sb-pagination">
+          {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}"><i class="bi bi-chevron-left"></i></a></li>
+          {% endif %}
+          {% for num in page_obj.paginator.page_range %}
+            <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+              <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a>
+            </li>
+          {% endfor %}
+          {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}"><i class="bi bi-chevron-right"></i></a></li>
+          {% endif %}
+        </ul>
+      </nav>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

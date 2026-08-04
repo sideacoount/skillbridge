@@ -1,0 +1,135 @@
+{% load static %}
+<nav class="sb-navbar {% if request.resolver_match.url_name == 'home' %}sb-navbar--transparent{% endif %}" id="mainNavbar">
+  <div class="container">
+    <div class="d-flex align-items-center justify-content-between py-3">
+
+      <!-- Brand -->
+      <a class="sb-brand" href="{% url 'services:home' %}">
+        <span class="sb-brand-mark"><i class="bi bi-lightning-charge-fill"></i></span>
+        <span class="sb-brand-text">Skill<span>Bridge</span></span>
+      </a>
+
+      <!-- Desktop links -->
+      <ul class="sb-nav-links d-none d-lg-flex align-items-center gap-4 mb-0">
+        <li><a class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'services:home' %}">Home</a></li>
+        <li><a class="{% if request.resolver_match.url_name == 'browse' %}active{% endif %}" href="{% url 'services:browse' %}">Browse services</a></li>
+        <li class="nav-item dropdown">
+          <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button">Categories</a>
+          <ul class="dropdown-menu sb-dropdown">
+            <li><h6 class="dropdown-header">Explore by category</h6></li>
+            {% for cat in all_categories|slice:":8" %}
+              <li><a class="dropdown-item" href="{% url 'services:browse' %}?category={{ cat.slug }}">
+                <i class="bi {{ cat.icon }}"></i> {{ cat.name }}
+              </a></li>
+            {% endfor %}
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item fw-semibold text-primary" href="{% url 'services:browse' %}">View all services <i class="bi bi-arrow-right"></i></a></li>
+          </ul>
+        </li>
+        <li><a class="{% if request.resolver_match.url_name == 'providers' %}active{% endif %}" href="{% url 'services:providers' %}">Providers</a></li>
+      </ul>
+
+      <!-- Right actions -->
+      <div class="d-flex align-items-center gap-2 sb-nav-actions">
+        <button class="sb-icon-btn" id="themeToggle" title="Toggle dark mode" aria-label="Toggle dark mode">
+          <i class="bi bi-moon-stars-fill"></i>
+        </button>
+
+        {% if user.is_authenticated %}
+          <a class="sb-icon-btn position-relative" href="{% url 'accounts:notifications' %}" title="Notifications">
+            <i class="bi bi-bell"></i>
+            {% if unread_notification_count %}
+              <span class="sb-badge-dot">{{ unread_notification_count }}</span>
+            {% endif %}
+          </a>
+
+          {% if user.is_student and user.is_provider_approved %}
+            <a class="sb-btn sb-btn-primary d-none d-md-inline-flex" href="{% url 'services:create' %}">
+              <i class="bi bi-plus-lg"></i> Add service
+            </a>
+          {% endif %}
+
+          <div class="dropdown">
+            <button class="sb-avatar-btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+              {% if user.profile_image %}
+                <img src="{{ user.profile_image.url }}" alt="{{ user.username }}" class="sb-avatar">
+              {% else %}
+                <span class="sb-avatar sb-avatar--text">{{ user.first_name|default:user.username|slice:":1" }}</span>
+              {% endif %}
+              <span class="d-none d-md-inline">{{ user.first_name|default:user.username|truncatechars:12 }}</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end sb-dropdown">
+              <li><span class="dropdown-header">{{ user.email }}</span></li>
+              <li><a class="dropdown-item" href="{% url 'dashboard:home' %}"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+              <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="bi bi-person-circle"></i> My profile</a></li>
+              <li><a class="dropdown-item" href="{% url 'bookings:my_bookings' %}"><i class="bi bi-calendar2-check"></i> My bookings</a></li>
+              <li><a class="dropdown-item" href="{% url 'services:wishlist' %}"><i class="bi bi-heart"></i> Wishlist</a></li>
+              {% if user.is_student %}
+                <li><a class="dropdown-item" href="{% url 'services:my_services' %}"><i class="bi bi-grid-1x2"></i> My services</a></li>
+                <li><a class="dropdown-item" href="{% url 'bookings:incoming' %}"><i class="bi bi-inbox"></i> Incoming bookings</a></li>
+              {% endif %}
+              <li><a class="dropdown-item" href="{% url 'accounts:edit_profile' %}"><i class="bi bi-gear"></i> Settings</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}
+                  <button type="submit" class="dropdown-item text-danger"><i class="bi bi-box-arrow-right"></i> Log out</button>
+                </form>
+              </li>
+            </ul>
+          </div>
+        {% else %}
+          <a class="sb-btn sb-btn-ghost d-none d-sm-inline-flex" href="{% url 'accounts:login' %}">Log in</a>
+          <a class="sb-btn sb-btn-primary sb-nav-cta" href="{% url 'accounts:register' %}">Get started</a>
+        {% endif %}
+
+        <!-- Mobile toggle -->
+        <button class="sb-icon-btn d-lg-none" id="offcanvasToggle" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu" aria-label="Menu">
+          <i class="bi bi-list"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile offcanvas menu -->
+<div class="offcanvas offcanvas-end sb-offcanvas" tabindex="-1" id="mobileMenu">
+  <div class="offcanvas-header">
+    <a class="sb-brand" href="{% url 'services:home' %}">
+      <span class="sb-brand-mark"><i class="bi bi-lightning-charge-fill"></i></span>
+      <span class="sb-brand-text">Skill<span>Bridge</span></span>
+    </a>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="d-flex gap-2 mb-4">
+      {% if user.is_authenticated %}
+        <a class="sb-btn sb-btn-primary flex-fill" href="{% url 'dashboard:home' %}"><i class="bi bi-speedometer2"></i> Dashboard</a>
+      {% else %}
+        <a class="sb-btn sb-btn-primary flex-fill" href="{% url 'accounts:register' %}">Get started</a>
+        <a class="sb-btn sb-btn-ghost flex-fill" href="{% url 'accounts:login' %}">Log in</a>
+      {% endif %}
+    </div>
+    <nav class="sb-offcanvas-nav">
+      <a href="{% url 'services:home' %}"><i class="bi bi-house"></i> Home</a>
+      <a href="{% url 'services:browse' %}"><i class="bi bi-search"></i> Browse services</a>
+      <a href="{% url 'services:providers' %}"><i class="bi bi-people"></i> Providers</a>
+      {% if user.is_authenticated %}
+        <a href="{% url 'accounts:profile' %}"><i class="bi bi-person-circle"></i> My profile</a>
+        <a href="{% url 'bookings:my_bookings' %}"><i class="bi bi-calendar2-check"></i> My bookings</a>
+        <a href="{% url 'services:wishlist' %}"><i class="bi bi-heart"></i> Wishlist</a>
+        {% if user.is_student %}
+          <a href="{% url 'services:my_services' %}"><i class="bi bi-grid-1x2"></i> My services</a>
+          <a href="{% url 'services:create' %}"><i class="bi bi-plus-lg"></i> Add service</a>
+          <a href="{% url 'bookings:incoming' %}"><i class="bi bi-inbox"></i> Incoming bookings</a>
+        {% endif %}
+        <a href="{% url 'accounts:notifications' %}"><i class="bi bi-bell"></i> Notifications
+          {% if unread_notification_count %}<span class="sb-badge-dot sb-badge-dot--static">{{ unread_notification_count }}</span>{% endif %}
+        </a>
+        <form method="post" action="{% url 'accounts:logout' %}" class="mt-2">
+          {% csrf_token %}
+          <button type="submit" class="sb-btn sb-btn-danger w-100"><i class="bi bi-box-arrow-right"></i> Log out</button>
+        </form>
+      {% endif %}
+    </nav>
+  </div>
+</div>

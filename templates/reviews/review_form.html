@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} — SkillBridge{% endblock %}
+
+{% block content %}
+<section class="sb-section-sm">
+  <div class="container" style="max-width:640px">
+    <div class="sb-card p-4 p-lg-5">
+      <div class="text-center mb-4">
+        <div class="d-flex justify-content-center mb-3">
+          {% if provider.profile_image %}
+            <img src="{{ provider.profile_image.url }}" alt="{{ provider.username }}" class="sb-avatar sb-avatar--lg">
+          {% else %}
+            <span class="sb-avatar sb-avatar--text sb-avatar--lg">{{ provider.first_name|default:provider.username|slice:":1" }}</span>
+          {% endif %}
+        </div>
+        <h4 class="fw-bold mb-1">{{ title }}</h4>
+        <p class="sb-text-muted small mb-0">Review {{ provider.get_full_name|default:provider.username }}</p>
+      </div>
+
+      <form method="post" data-validate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+
+        <div class="mb-4 text-center">
+          <label class="sb-form-label d-block mb-2">Your rating</label>
+          <div class="sb-star-input">
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+          </div>
+          {{ form.rating }}
+          {% if form.rating.errors %}<ul class="errorlist">{{ form.rating.errors }}</ul>{% endif %}
+        </div>
+
+        {% if form.service %}
+          <div class="mb-3">
+            <label class="sb-form-label">{{ form.service.label }}</label>
+            {{ form.service }}
+            {% if form.service.errors %}<ul class="errorlist">{{ form.service.errors }}</ul>{% endif %}
+          </div>
+        {% endif %}
+
+        <div class="mb-4">
+          <label class="sb-form-label">Comment</label>
+          {{ form.comment }}
+          {% if form.comment.errors %}<ul class="errorlist">{{ form.comment.errors }}</ul>{% endif %}
+        </div>
+
+        <button type="submit" class="sb-btn sb-btn-primary sb-btn-lg w-100"><i class="bi bi-send"></i> Publish review</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}
