@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit profile — SkillBridge{% endblock %}
+
+{% block content %}
+<section class="sb-section-sm">
+  <div class="container" style="max-width:780px">
+    <div class="sb-card p-4 p-lg-5">
+      <div class="mb-4">
+        <span class="sb-eyebrow mb-2"><i class="bi bi-person-gear"></i> Settings</span>
+        <h3 class="fw-bold mt-2 mb-1">Edit your profile</h3>
+        <p class="sb-text-muted mb-0">A complete profile earns trust and more bookings.</p>
+      </div>
+
+      <form method="post" enctype="multipart/form-data" data-validate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+
+        <div class="d-flex align-items-center gap-4 mb-4">
+          {% if user.profile_image %}
+            <img id="profileImagePreview" src="{{ user.profile_image.url }}" class="sb-img-preview has-image" style="border-style:solid;max-width:120px;aspect-ratio:1;border-radius:50%" alt="Profile preview">
+          {% else %}
+            <div id="profileImagePreview" class="sb-img-preview" style="max-width:120px;border-radius:50%"><i class="bi bi-person fs-1"></i></div>
+          {% endif %}
+          <div class="flex-grow-1">
+            <label class="sb-form-label">Profile picture</label>
+            {{ form.profile_image }}
+            {% if form.profile_image.errors %}<ul class="errorlist">{{ form.profile_image.errors }}</ul>{% endif %}
+            <div class="form-text">JPG or PNG. Keep it clear — clients like faces.</div>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="sb-form-label">First name</label>
+            {{ form.first_name }}
+            {% if form.first_name.errors %}<ul class="errorlist">{{ form.first_name.errors }}</ul>{% endif %}
+          </div>
+          <div class="col-md-6">
+            <label class="sb-form-label">Last name</label>
+            {{ form.last_name }}
+            {% if form.last_name.errors %}<ul class="errorlist">{{ form.last_name.errors }}</ul>{% endif %}
+          </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="sb-form-label">Email</label>
+            {{ form.email }}
+            {% if form.email.errors %}<ul class="errorlist">{{ form.email.errors }}</ul>{% endif %}
+          </div>
+          <div class="col-md-6">
+            <label class="sb-form-label">Phone</label>
+            {{ form.phone }}
+            {% if form.phone.errors %}<ul class="errorlist">{{ form.phone.errors }}</ul>{% endif %}
+          </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="sb-form-label">Occupation</label>
+            {{ form.occupation }}
+            {% if form.occupation.errors %}<ul class="errorlist">{{ form.occupation.errors }}</ul>{% endif %}
+          </div>
+          <div class="col-md-6">
+            <label class="sb-form-label">Location</label>
+            {{ form.location }}
+            {% if form.location.errors %}<ul class="errorlist">{{ form.location.errors }}</ul>{% endif %}
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="sb-form-label">Website / portfolio</label>
+          {{ form.website }}
+          {% if form.website.errors %}<ul class="errorlist">{{ form.website.errors }}</ul>{% endif %}
+        </div>
+
+        <div class="mb-4">
+          <label class="sb-form-label">Bio</label>
+          {{ form.bio }}
+          {% if form.bio.errors %}<ul class="errorlist">{{ form.bio.errors }}</ul>{% endif %}
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="submit" class="sb-btn sb-btn-primary sb-btn-lg flex-fill"><i class="bi bi-check-lg"></i> Save changes</button>
+          <a href="{% url 'accounts:profile' %}" class="sb-btn sb-btn-ghost sb-btn-lg">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

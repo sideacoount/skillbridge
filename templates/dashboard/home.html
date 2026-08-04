@@ -1,0 +1,262 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard — SkillBridge{% endblock %}
+{% block body_class %}sb-dash-body{% endblock %}
+
+{% block content %}
+<div class="sb-dash-wrap">
+  {% include 'dashboard/includes/sidebar.html' %}
+  <div class="sb-sidebar-overlay"></div>
+
+  <main class="sb-dash-main">
+    <div class="sb-dash-topbar">
+      <div>
+        <h4 class="fw-bold mb-1">Hello, {{ user.first_name|default:user.username }} 👋</h4>
+        <div class="sb-text-muted small">Here's what's happening on your SkillBridge.</div>
+      </div>
+      <div class="d-flex gap-2">
+        <a href="{% url 'accounts:edit_profile' %}" class="sb-btn sb-btn-ghost sb-btn-sm"><i class="bi bi-person-gear"></i> Edit profile</a>
+        {% if user.is_student and user.is_provider_approved %}
+          <a href="{% url 'services:create' %}" class="sb-btn sb-btn-primary sb-btn-sm"><i class="bi bi-plus-lg"></i> New service</a>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Role alert -->
+    {% if user.is_student and not user.is_provider_approved %}
+      <div class="alert alert-warning d-flex align-items-center gap-2" style="border-radius:14px">
+        <i class="bi bi-hourglass-split"></i>
+        <div>Your provider account is pending <strong>admin approval</strong>. Once approved you'll be able to list services.</div>
+      </div>
+    {% endif %}
+
+    {% if user.is_client %}
+      <div class="alert alert-primary d-flex align-items-center gap-2" style="border-radius:14px">
+        <i class="bi bi-lightbulb"></i>
+        <div>You're browsing as a <strong>client</strong>. Want to sell your skills instead? <a href="{% url 'accounts:edit_profile' %}" class="fw-semibold">Switch to student</a> in settings.</div>
+      </div>
+    {% endif %}
+
+    <!-- Stat cards -->
+    <div class="row g-3 mb-4">
+      {% if is_student %}
+        <div class="col-6 col-xl-3">
+          <div class="sb-card sb-stat-card">
+            <div class="sb-stat-icon sb-stat-icon--blue"><i class="bi bi-grid-1x2"></i></div>
+            <div><div class="sb-stat-value">{{ my_services_count }}</div><div class="sb-stat-label">Active services</div></div>
+          </div>
+        </div>
+        <div class="col-6 col-xl-3">
+          <div class="sb-card sb-stat-card">
+            <div class="sb-stat-icon sb-stat-icon--amber"><i class="bi bi-inbox"></i></div>
+            <div><div class="sb-stat-value">{{ accepted_pending }}</div><div class="sb-stat-label">Open bookings</div></div>
+          </div>
+        </div>
+        <div class="col-6 col-xl-3">
+          <div class="sb-card sb-stat-card">
+            <div class="sb-stat-icon sb-stat-icon--green"><i class="bi bi-briefcase"></i></div>
+            <div><div class="sb-stat-value">{{ completed_jobs }}</div><div class="sb-stat-label">Completed jobs</div></div>
+          </div>
+        </div>
+        <div class="col-6 col-xl-3">
+          <div class="sb-card sb-stat-card">
+            <div class="sb-stat-icon sb-stat-icon--purple"><i class="bi bi-star"></i></div>
+            <div><div class="sb-stat-value">{{ provider_rating }}<small class="fs-6 text-muted">/5</small></div><div class="sb-stat-label">{{ provider_review_count }} reviews</div></div>
+          </div>
+        </div>
+      {% else %}
+        <div class="col-6 col-xl-3">
+          <div class="sb-card sb-stat-card">
+            <div class="sb-stat-icon sb-stat-icon--blue"><i class="bi bi-calendar2-check"></i></div>
+            <div><div class="sb-stat-value">{{ total_bookings }}</div><div class="sb-stat-label">Total bookings</div></div>
+          </div>
+        </div>
+        <div class="col-6 col-xl-3">
+          <div class="sb-card sb-stat-card">
+            <div class="sb-stat-icon sb-stat-icon--amber"><i class="bi bi-hourglass"></i></div>
+            <div><div class="sb-stat-value">{{ pending_bookings }}</div><div class="sb-stat-label">Pending</div></div>
+          </div>
+        </div>
+        <div class="col-6 col-xl-3">
+          <div class="sb-card sb-stat-card">
+            <div class="sb-stat-icon sb-stat-icon--red"><i class="bi bi-x-circle"></i></div>
+            <div><div class="sb-stat-value">{{ cancelled_bookings }}</div><div class="sb-stat-label">Cancelled</div></div>
+          </div>
+        </div>
+        <div class="col-6 col-xl-3">
+          <div class="sb-card sb-stat-card">
+            <div class="sb-stat-icon sb-stat-icon--green"><i class="bi bi-cash-stack"></i></div>
+            <div><div class="sb-stat-value">${{ client_spend|floatformat:0 }}</div><div class="sb-stat-label">Total spend</div></div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Provider revenue + completion -->
+    {% if is_student %}
+    <div class="row g-3 mb-4">
+      <div class="col-md-6">
+        <div class="sb-card sb-stat-card">
+          <div class="sb-stat-icon sb-stat-icon--green"><i class="bi bi-cash-stack"></i></div>
+          <div><div class="sb-stat-value">${{ revenue|floatformat:2 }}</div><div class="sb-stat-label">Revenue from completed jobs</div></div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="sb-card p-3 d-flex align-items-center gap-3">
+          <div class="sb-ring" style="--ring: calc({{ completion }} * 3.6deg)"><span>{{ completion }}%</span></div>
+          <div>
+            <div class="fw-bold mb-1">Profile completion</div>
+            <div class="sb-text-muted small">Complete your profile to get more bookings.</div>
+            <a href="{% url 'accounts:edit_profile' %}" class="small fw-semibold">Complete profile <i class="bi bi-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Charts -->
+    <div class="row g-3 mb-4">
+      <div class="col-lg-8">
+        <div class="sb-card p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold mb-0"><i class="bi bi-bar-chart me-2 text-primary"></i>Bookings — last 7 days</h6>
+          </div>
+          <div class="sb-chart-box"><canvas id="bookingsChart"></canvas></div>
+        </div>
+      </div>
+      {% if is_student %}
+        <div class="col-lg-4">
+          <div class="sb-card p-4">
+            <h6 class="fw-bold mb-3"><i class="bi bi-pie-chart me-2 text-primary"></i>Services by category</h6>
+            <div class="sb-chart-box"><canvas id="categoryChart"></canvas></div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Recent bookings -->
+    <div class="row g-3">
+      {% if is_student %}
+        <div class="col-lg-7">
+          <div class="sb-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="fw-bold mb-0">Recent incoming bookings</h6>
+              <a href="{% url 'bookings:incoming' %}" class="small fw-semibold">View all</a>
+            </div>
+            {% include 'bookings/partials/booking_table.html' with bookings=recent_incoming is_provider_view=True %}
+          </div>
+        </div>
+        <div class="col-lg-5">
+          <div class="sb-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="fw-bold mb-0">Recent services</h6>
+              <a href="{% url 'services:my_services' %}" class="small fw-semibold">View all</a>
+            </div>
+            <div class="d-flex flex-column gap-2">
+              {% for s in recent_services %}
+                <a href="{% url 'services:detail' pk=s.pk %}" class="d-flex align-items-center gap-3 p-2 rounded-3 text-decoration-none" style="background:var(--sb-card-2)">
+                  {% if s.image %}
+                    <img src="{{ s.image.url }}" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:10px">
+                  {% else %}
+                    <span class="sb-stat-icon sb-stat-icon--blue" style="width:48px;height:48px"><i class="bi bi-image"></i></span>
+                  {% endif %}
+                  <div class="flex-grow-1 small">
+                    <div class="fw-semibold text-reset">{{ s.title|truncatechars:38 }}</div>
+                    <div class="sb-text-muted">${{ s.price|floatformat:0 }} · {{ s.category.name|default:"General" }}</div>
+                  </div>
+                </a>
+              {% empty %}
+                <p class="sb-text-muted small mb-0">No services yet.</p>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <div class="col-lg-8">
+          <div class="sb-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="fw-bold mb-0">Recent bookings</h6>
+              <a href="{% url 'bookings:my_bookings' %}" class="small fw-semibold">View all</a>
+            </div>
+            {% include 'bookings/partials/booking_table.html' with bookings=client_bookings %}
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="sb-card p-4 h-100">
+            <h6 class="fw-bold mb-3">Quick actions</h6>
+            <div class="d-flex flex-column gap-2">
+              <a href="{% url 'services:browse' %}" class="sb-btn sb-btn-ghost"><i class="bi bi-search"></i> Find a service</a>
+              <a href="{% url 'services:providers' %}" class="sb-btn sb-btn-ghost"><i class="bi bi-people"></i> Browse providers</a>
+              <a href="{% url 'bookings:my_bookings' %}" class="sb-btn sb-btn-ghost"><i class="bi bi-calendar2-check"></i> View booking history</a>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+  (function () {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const grid = isDark ? 'rgba(255,255,255,.07)' : 'rgba(15,23,42,.06)';
+    const tick = isDark ? '#94A3B8' : '#64748B';
+    const chartDefaults = { maintainAspectRatio: false, responsive: true };
+
+    const bc = document.getElementById('bookingsChart');
+    if (bc) {
+      new Chart(bc, {
+        type: 'bar',
+        data: {
+          labels: {{ chart_labels|safe }},
+          datasets: [{
+            label: 'Bookings',
+            data: {{ chart_values|safe }},
+            backgroundColor: 'rgba(37,99,235,.75)',
+            hoverBackgroundColor: '#06B6D4',
+            borderRadius: 8,
+            maxBarThickness: 44
+          }]
+        },
+        options: Object.assign({}, chartDefaults, {
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: tick } },
+            y: { beginAtZero: true, ticks: { stepSize: 1, color: tick }, grid: { color: grid } }
+          }
+        })
+      });
+    }
+
+    const cc = document.getElementById('categoryChart');
+    if (cc) {
+      const cats = {{ category_labels|safe }};
+      new Chart(cc, {
+        type: 'doughnut',
+        data: {
+          labels: cats,
+          datasets: [{
+            data: {{ category_values|safe }},
+            backgroundColor: ['#2563EB', '#06B6D4', '#10B981', '#F59E0B', '#8B5CF6', '#EF4444'],
+            borderWidth: 0,
+            hoverOffset: 6
+          }]
+        },
+        options: Object.assign({}, chartDefaults, {
+          cutout: '65%',
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { color: tick, boxWidth: 12, padding: 12, font: { size: 11 } }
+            }
+          }
+        })
+      });
+    }
+  })();
+</script>
+{% endblock %}

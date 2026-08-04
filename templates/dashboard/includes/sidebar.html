@@ -1,0 +1,62 @@
+<aside class="sb-sidebar">
+  <a class="sb-brand" href="{% url 'services:home' %}">
+    <span class="sb-brand-mark"><i class="bi bi-lightning-charge-fill"></i></span>
+    <span class="sb-brand-text">Skill<span>Bridge</span></span>
+  </a>
+
+  <nav class="sb-sidebar-nav">
+    <a href="{% url 'dashboard:home' %}" class="{% if request.resolver_match.url_name == 'home' and request.resolver_match.namespace == 'dashboard' %}active{% endif %}">
+      <i class="bi bi-speedometer2"></i> Overview
+    </a>
+    <a href="{% url 'services:browse' %}"><i class="bi bi-grid"></i> Browse services</a>
+
+    {% if user.is_student %}
+      <div class="sb-text-soft small fw-semibold mt-3 mb-1 px-2">PROVIDER</div>
+      <a href="{% url 'services:my_services' %}" class="{% if request.resolver_match.namespace == 'services' and request.resolver_match.url_name == 'my_services' %}active{% endif %}">
+        <i class="bi bi-grid-1x2"></i> My services
+      </a>
+      <a href="{% url 'services:create' %}" class="{% if request.resolver_match.url_name == 'create' %}active{% endif %}">
+        <i class="bi bi-plus-square"></i> Add service
+      </a>
+      <a href="{% url 'bookings:incoming' %}" class="{% if request.resolver_match.url_name == 'incoming' %}active{% endif %}">
+        <i class="bi bi-inbox"></i> Incoming bookings
+      </a>
+    {% else %}
+      <div class="sb-text-soft small fw-semibold mt-3 mb-1 px-2">CLIENT</div>
+      <a href="{% url 'bookings:my_bookings' %}" class="{% if request.resolver_match.url_name == 'my_bookings' %}active{% endif %}">
+        <i class="bi bi-calendar2-check"></i> My bookings
+      </a>
+    {% endif %}
+
+    <div class="sb-text-soft small fw-semibold mt-3 mb-1 px-2">ACCOUNT</div>
+    <a href="{% url 'accounts:profile' %}"><i class="bi bi-person-circle"></i> My profile</a>
+    <a href="{% url 'accounts:edit_profile' %}" class="{% if request.resolver_match.url_name == 'edit_profile' %}active{% endif %}">
+      <i class="bi bi-gear"></i> Settings
+    </a>
+    <a href="{% url 'services:wishlist' %}" class="{% if request.resolver_match.url_name == 'wishlist' %}active{% endif %}">
+      <i class="bi bi-heart"></i> Wishlist
+    </a>
+    <a href="{% url 'accounts:notifications' %}">
+      <i class="bi bi-bell"></i> Notifications
+      {% if unread_notification_count %}<span class="sb-badge-dot sb-badge-dot--static">{{ unread_notification_count }}</span>{% endif %}
+    </a>
+  </nav>
+
+  <div class="sb-sidebar-footer">
+    <div class="d-flex align-items-center gap-2 mb-3">
+      {% if user.profile_image %}
+        <img src="{{ user.profile_image.url }}" alt="" class="sb-avatar sb-avatar--sm">
+      {% else %}
+        <span class="sb-avatar sb-avatar--text sb-avatar--sm">{{ user.first_name|default:user.username|slice:":1" }}</span>
+      {% endif %}
+      <div class="small lh-sm">
+        <div class="fw-bold">{{ user.get_full_name|default:user.username }}</div>
+        <div class="sb-text-soft">{{ user.get_role_display }}</div>
+      </div>
+    </div>
+    <form method="post" action="{% url 'accounts:logout' %}">
+      {% csrf_token %}
+      <button type="submit" class="sb-btn sb-btn-ghost sb-btn-sm w-100"><i class="bi bi-box-arrow-right"></i> Log out</button>
+    </form>
+  </div>
+</aside>

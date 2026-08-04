@@ -1,0 +1,338 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}SkillBridge — Connecting Skilled Students with Clients{% endblock %}
+{% block body_class %}sb-landing{% endblock %}
+{% block main_class %}{% endblock %}
+
+{% block content %}
+
+<!-- ================= HERO ================= -->
+<section class="sb-hero" id="home">
+  <div class="sb-hero-blob sb-hero-blob--1"></div>
+  <div class="sb-hero-blob sb-hero-blob--2"></div>
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6">
+        <div class="sb-eyebrow mb-3 sb-fade-in"><i class="bi bi-stars"></i> The student talent marketplace</div>
+        <h1 class="sb-hero-title mb-3 sb-fade-in" style="animation-delay:.05s">
+          Hire <span class="text-gradient">talented students</span>.<br>Do more for less.
+        </h1>
+        <p class="sb-hero-sub mb-4 sb-fade-in" style="animation-delay:.1s">
+          SkillBridge connects skilled students with clients who need affordable,
+          high-quality services — from web development to design, video and more.
+        </p>
+
+        <form action="{% url 'services:browse' %}" method="get" class="sb-search-box mb-3 sb-fade-in" style="animation-delay:.15s">
+          <i class="bi bi-search"></i>
+          <input type="text" name="q" placeholder="Try “logo design”, “website”, “editing”…" aria-label="Search services">
+          <button type="submit" class="sb-btn sb-btn-primary">Search</button>
+        </form>
+
+        <div class="d-flex flex-wrap gap-3 align-items-center sb-fade-in" style="animation-delay:.2s">
+          <a href="{% url 'services:browse' %}" class="sb-btn sb-btn-primary sb-btn-lg">Browse services <i class="bi bi-arrow-right"></i></a>
+          <a href="{% url 'services:providers' %}" class="sb-btn sb-btn-ghost sb-btn-lg">Meet the providers</a>
+        </div>
+
+        <div class="d-flex flex-wrap gap-4 mt-4 pt-2 sb-fade-in" style="animation-delay:.25s">
+          <div>
+            <div class="sb-stat-number" data-count="{{ stats.services }}" data-suffix="+">0</div>
+            <div class="sb-text-muted small fw-semibold">Services live</div>
+          </div>
+          <div>
+            <div class="sb-stat-number" data-count="{{ stats.providers }}" data-suffix="+">0</div>
+            <div class="sb-text-muted small fw-semibold">Student providers</div>
+          </div>
+          <div>
+            <div class="sb-stat-number" data-count="{{ stats.completed }}" data-suffix="+">0</div>
+            <div class="sb-text-muted small fw-semibold">Completed jobs</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6 d-none d-lg-block">
+        <div class="position-relative" style="min-height:420px">
+          <!-- Backdrop card -->
+          <div class="sb-hero-card sb-hero-card--float2 position-absolute" style="width:56%; top:0; right:0; z-index:1">
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <span class="sb-avatar sb-avatar--text sb-avatar--sm">AK</span>
+              <div class="small">
+                <div class="fw-bold">Amina K.</div>
+                <div class="sb-text-muted">UI/UX Designer</div>
+              </div>
+              <span class="sb-rating-pill ms-auto"><i class="bi bi-star-fill"></i> 4.9</span>
+            </div>
+            <img src="https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=600&q=70" alt="Design project preview">
+          </div>
+
+          <!-- Front card -->
+          <div class="sb-hero-card position-absolute" style="width:60%; bottom:0; left:0; z-index:2">
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <span class="sb-avatar sb-avatar--text sb-avatar--sm">JM</span>
+              <div class="small">
+                <div class="fw-bold">James M.</div>
+                <div class="sb-text-muted">Full-stack Developer</div>
+              </div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <div class="small fw-semibold">E-commerce website</div>
+                <div class="sb-text-muted small">React + Django · 5 days</div>
+              </div>
+              <span class="sb-price-pill">$180</span>
+            </div>
+            <div class="mt-3">
+              <div class="d-flex justify-content-between small mb-1"><span class="sb-text-muted">Budget progress</span><span class="fw-bold">85%</span></div>
+              <div class="sb-progress"><div class="sb-progress-bar" style="width:85%"></div></div>
+            </div>
+          </div>
+
+          <!-- Floating chip -->
+          <div class="sb-hero-card sb-glass position-absolute d-flex align-items-center gap-2 py-2 px-3" style="top:28%; left:-6%; z-index:3; border-radius:14px; animation:cardFloat 5s ease-in-out infinite">
+            <span class="sb-stat-icon sb-stat-icon--green" style="width:38px;height:38px"><i class="bi bi-patch-check-fill"></i></span>
+            <div class="small"><div class="fw-bold">New booking</div><div class="sb-text-muted">Video editing · $60</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CATEGORIES ================= -->
+<section class="sb-section py-5">
+  <div class="container">
+    <div class="row g-2 g-md-3 justify-content-center">
+      {% for cat in all_categories|slice:":10" %}
+        <div class="col-4 col-md-3 col-lg-2">
+          <a class="sb-cat-chip w-100" href="{% url 'services:browse' %}?category={{ cat.slug }}">
+            <i class="bi {{ cat.icon }}"></i>
+            <span>{{ cat.name }}</span>
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ================= FEATURED SERVICES ================= -->
+<section class="sb-section sb-bg-alt" id="featured">
+  <div class="container">
+    <div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
+      <div>
+        <span class="sb-eyebrow mb-2"><i class="bi bi-fire"></i> Handpicked for you</span>
+        <h2 class="sb-section-title mt-2">Featured services</h2>
+      </div>
+      <a href="{% url 'services:browse' %}" class="sb-btn sb-btn-ghost">View all <i class="bi bi-arrow-right"></i></a>
+    </div>
+
+    <div class="row g-4">
+      {% for service in featured %}
+        <div class="col-md-6 col-lg-4">
+          {% include 'services/partials/service_card.html' with service=service %}
+        </div>
+      {% empty %}
+        <div class="col-12"><div class="sb-empty"><p class="mb-0">Services are on their way — check back soon.</p></div></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ================= HOW IT WORKS ================= -->
+<section class="sb-section" id="how">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="sb-eyebrow mb-2"><i class="bi bi-diagram-3"></i> Simple by design</span>
+      <h2 class="sb-section-title mt-2">How SkillBridge works</h2>
+      <p class="sb-section-sub mx-auto">From discovery to delivery in three effortless steps.</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="sb-step sb-reveal">
+          <div class="sb-step-num"><i class="bi bi-search"></i></div>
+          <h5 class="fw-bold">1. Discover</h5>
+          <p class="sb-text-muted mb-0">Search across categories, compare prices and read honest reviews from real clients.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="sb-step sb-reveal" style="transition-delay:.1s">
+          <div class="sb-step-num sb-step-num--alt"><i class="bi bi-calendar2-check"></i></div>
+          <h5 class="fw-bold">2. Book</h5>
+          <p class="sb-text-muted mb-0">Send a booking request with your date and budget. Providers accept in the app instantly.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="sb-step sb-reveal" style="transition-delay:.2s">
+          <div class="sb-step-num"><i class="bi bi-stars"></i></div>
+          <h5 class="fw-bold">3. Get it done</h5>
+          <p class="sb-text-muted mb-0">Collaborate, mark work complete, and leave a review that helps the next client.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TOP PROVIDERS ================= -->
+<section class="sb-section sb-bg-alt" id="providers">
+  <div class="container">
+    <div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
+      <div>
+        <span class="sb-eyebrow mb-2"><i class="bi bi-people"></i> Trusted talent</span>
+        <h2 class="sb-section-title mt-2">Top student providers</h2>
+      </div>
+      <a href="{% url 'services:providers' %}" class="sb-btn sb-btn-ghost">All providers <i class="bi bi-arrow-right"></i></a>
+    </div>
+    <div class="row g-4">
+      {% for p in top_providers %}
+        <div class="col-md-6 col-lg-4">
+          <a href="{% url 'accounts:public_profile' username=p.username %}" class="text-decoration-none">
+            <div class="sb-card sb-provider-card sb-reveal">
+              {% if p.profile_image %}
+                <img src="{{ p.profile_image.url }}" alt="{{ p.username }}" class="sb-avatar sb-avatar--lg mb-3">
+              {% else %}
+                <span class="sb-avatar sb-avatar--text sb-avatar--lg mb-3">{{ p.first_name|default:p.username|slice:":1" }}</span>
+              {% endif %}
+              <h5 class="fw-bold mb-1 text-reset">{{ p.get_full_name|default:p.username }}</h5>
+              <div class="sb-text-muted small mb-2">{{ p.occupation|default:"Student provider" }}</div>
+              <div class="d-flex justify-content-center gap-3 small">
+                <span class="sb-rating-pill"><i class="bi bi-star-fill"></i> {{ p.avg_rating|floatformat:1 }}</span>
+                <span class="sb-chip"><i class="bi bi-briefcase"></i> {{ p.completed }} jobs</span>
+              </div>
+            </div>
+          </a>
+        </div>
+      {% empty %}
+        <div class="col-12"><div class="sb-empty"><p class="mb-0">Top providers coming soon.</p></div></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ================= TESTIMONIALS ================= -->
+<section class="sb-section" id="testimonials">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="sb-eyebrow mb-2"><i class="bi bi-chat-quote"></i> Real stories</span>
+      <h2 class="sb-section-title mt-2">Loved by students and clients</h2>
+    </div>
+    <div class="row g-4">
+      {% for t in testimonials %}
+        <div class="col-md-4">
+          <div class="sb-card sb-testimonial sb-reveal">
+            <div class="sb-stars">★★★★★</div>
+            <p class="mb-0 sb-text-muted">“{{ t.text }}”</p>
+            <div class="d-flex align-items-center gap-2 mt-auto pt-2">
+              <span class="sb-avatar sb-avatar--text sb-avatar--sm">{{ t.initials }}</span>
+              <div class="small">
+                <div class="fw-bold">{{ t.name }}</div>
+                <div class="sb-text-muted">{{ t.role }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ================= FAQ ================= -->
+<section class="sb-section sb-bg-alt" id="faq">
+  <div class="container">
+    <div class="row g-5">
+      <div class="col-lg-4">
+        <span class="sb-eyebrow mb-2"><i class="bi bi-patch-question"></i> Questions</span>
+        <h2 class="sb-section-title mt-2">Frequently asked</h2>
+        <p class="sb-text-muted">Everything you need to know about using SkillBridge.</p>
+        <a href="{% url 'accounts:register' %}" class="sb-btn sb-btn-primary mt-2">Get started free</a>
+      </div>
+      <div class="col-lg-8">
+        <div class="accordion sb-accordion" id="faqAccordion">
+          {% for f in faqs %}
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#faq{{ forloop.counter }}">
+                  {{ f.q }}
+                </button>
+              </h2>
+              <div id="faq{{ forloop.counter }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">{{ f.a }}</div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CONTACT ================= -->
+<section class="sb-section" id="contact">
+  <div class="container">
+    <div class="row g-5 align-items-center">
+      <div class="col-lg-5">
+        <span class="sb-eyebrow mb-2"><i class="bi bi-envelope"></i> Say hello</span>
+        <h2 class="sb-section-title mt-2">Let's build the bridge together</h2>
+        <p class="sb-text-muted">Questions, feedback or partnership ideas? We'd love to hear from you.</p>
+        <div class="d-flex flex-column gap-3 mt-4">
+          <div class="d-flex align-items-center gap-3">
+            <span class="sb-stat-icon sb-stat-icon--blue"><i class="bi bi-envelope"></i></span>
+            <div><div class="fw-bold small">Email</div><div class="sb-text-muted small">hello@skillbridge.app</div></div>
+          </div>
+          <div class="d-flex align-items-center gap-3">
+            <span class="sb-stat-icon sb-stat-icon--cyan"><i class="bi bi-geo-alt"></i></span>
+            <div><div class="fw-bold small">Location</div><div class="sb-text-muted small">Nairobi, Kenya · Remote worldwide</div></div>
+          </div>
+          <div class="d-flex align-items-center gap-3">
+            <span class="sb-stat-icon sb-stat-icon--green"><i class="bi bi-clock"></i></span>
+            <div><div class="fw-bold small">Response time</div><div class="sb-text-muted small">Within 24 hours</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-7">
+        <form class="sb-card p-4 p-lg-5" data-validate action="#" method="post">
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="sb-form-label">Your name</label>
+              <input type="text" class="form-control" placeholder="Jane Doe" required>
+            </div>
+            <div class="col-md-6">
+              <label class="sb-form-label">Email</label>
+              <input type="email" class="form-control" placeholder="jane@email.com" required>
+            </div>
+            <div class="col-12">
+              <label class="sb-form-label">Subject</label>
+              <input type="text" class="form-control" placeholder="How can we help?" required>
+            </div>
+            <div class="col-12">
+              <label class="sb-form-label">Message</label>
+              <textarea class="form-control" rows="4" placeholder="Tell us more…" required data-char-counter="contact" maxlength="1000"></textarea>
+            </div>
+            <div class="col-12">
+              <button type="submit" class="sb-btn sb-btn-primary sb-btn-lg"><i class="bi bi-send"></i> Send message</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CTA ================= -->
+<section class="sb-section">
+  <div class="container">
+    <div class="sb-cta text-center sb-reveal">
+      <h2 class="mb-2">Ready to earn or hire?</h2>
+      <p class="mx-auto" style="max-width:520px">Join thousands of students earning from their skills — and clients saving on quality work.</p>
+      <div class="d-flex flex-wrap justify-content-center gap-3 mt-4">
+        <a href="{% url 'accounts:register' %}" class="sb-btn sb-btn-light sb-btn-lg">Join SkillBridge <i class="bi bi-arrow-right"></i></a>
+        <a href="{% url 'services:browse' %}" class="sb-btn sb-btn-outline-light sb-btn-lg">Explore services</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .sb-btn-outline-light { border:1px solid rgba(255,255,255,.5); color:#fff !important; }
+  .sb-btn-outline-light:hover { background: rgba(255,255,255,.15); }
+</style>
+{% endblock %}

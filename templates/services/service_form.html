@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} — SkillBridge{% endblock %}
+
+{% block content %}
+<section class="sb-section-sm">
+  <div class="container" style="max-width:760px">
+    <div class="sb-card p-4 p-lg-5">
+      <div class="mb-4">
+        <span class="sb-eyebrow mb-2"><i class="bi bi-plus-square"></i> {% if service %}Edit{% else %}New{% endif %} listing</span>
+        <h3 class="fw-bold mt-2 mb-1">{{ title }}</h3>
+        <p class="sb-text-muted mb-0">Fill in the details below. The better your description, the faster you get booked.</p>
+      </div>
+
+      <form method="post" enctype="multipart/form-data" data-validate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="mb-3">
+          <label class="sb-form-label">Service name</label>
+          {{ form.title }}
+          {% if form.title.errors %}<ul class="errorlist">{{ form.title.errors }}</ul>{% endif %}
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="sb-form-label">Category</label>
+            {{ form.category }}
+            {% if form.category.errors %}<ul class="errorlist">{{ form.category.errors }}</ul>{% endif %}
+          </div>
+          <div class="col-md-6">
+            <label class="sb-form-label">Availability</label>
+            {{ form.availability }}
+            {% if form.availability.errors %}<ul class="errorlist">{{ form.availability.errors }}</ul>{% endif %}
+          </div>
+        </div>
+
+        <div class="mb-3 mt-3">
+          <label class="sb-form-label">Price ($)</label>
+          <div class="input-group">
+            <span class="input-group-text" style="border-radius:12px 0 0 12px;background:var(--sb-card-2);border-color:var(--sb-border-strong);color:var(--sb-text-muted)">$</span>
+            {{ form.price }}
+          </div>
+          {% if form.price.errors %}<ul class="errorlist">{{ form.price.errors }}</ul>{% endif %}
+        </div>
+
+        <div class="mb-3">
+          <label class="sb-form-label">Description</label>
+          {{ form.description }}
+          {% if form.description.errors %}<ul class="errorlist">{{ form.description.errors }}</ul>{% endif %}
+        </div>
+
+        <div class="mb-4">
+          <label class="sb-form-label">Cover image</label>
+          {{ form.image }}
+          {% if form.image.errors %}<ul class="errorlist">{{ form.image.errors }}</ul>{% endif %}
+          <div class="d-flex gap-3 align-items-start">
+            {% if service and service.image %}
+              <img id="serviceImagePreview" src="{{ service.image.url }}" class="sb-img-preview has-image" style="border-style:solid" alt="Preview">
+            {% else %}
+              <div id="serviceImagePreview" class="sb-img-preview"><i class="bi bi-image fs-2"></i></div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="submit" class="sb-btn sb-btn-primary sb-btn-lg flex-fill">
+            <i class="bi bi-check-lg"></i> {% if service %}Save changes{% else %}Publish service{% endif %}
+          </button>
+          <a href="{% url 'services:my_services' %}" class="sb-btn sb-btn-ghost sb-btn-lg">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

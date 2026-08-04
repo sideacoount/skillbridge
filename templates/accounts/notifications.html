@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Notifications — SkillBridge{% endblock %}
+{% block body_class %}sb-dash-body{% endblock %}
+
+{% block content %}
+<div class="sb-dash-wrap">
+  {% include 'dashboard/includes/sidebar.html' %}
+  <div class="sb-sidebar-overlay"></div>
+  <main class="sb-dash-main">
+    <div class="sb-dash-topbar">
+      <div>
+        <h4 class="fw-bold mb-1">Notifications</h4>
+        <div class="sb-text-muted small">Booking updates, reviews and activity.</div>
+      </div>
+    </div>
+
+    <div class="sb-card p-2" id="notifList">
+      {% for n in notifications_list %}
+        <a href="{{ n.link|default:'#' }}" class="text-decoration-none">
+          <div class="sb-notif {% if not n.is_read %}unread{% endif %}">
+            {% if not n.is_read %}<span class="sb-notif-dot"></span>{% endif %}
+            <div class="flex-grow-1 min-w-0">
+              <div class="fw-semibold text-reset">{{ n.title }}</div>
+              {% if n.message %}<div class="small sb-text-muted">{{ n.message }}</div>{% endif %}
+              <div class="sb-text-soft" style="font-size:.75rem">{{ n.created_at|timesince }} ago</div>
+            </div>
+          </div>
+        </a>
+      {% empty %}
+        <div class="sb-empty py-5">
+          <div class="sb-empty-icon"><i class="bi bi-bell-slash"></i></div>
+          <p class="mb-0">You're all caught up.</p>
+        </div>
+      {% endfor %}
+    </div>
+  </main>
+</div>
+{% endblock %}

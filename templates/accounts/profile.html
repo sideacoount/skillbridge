@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ target.get_full_name|default:target.username }} — SkillBridge{% endblock %}
+{% block body_class %}sb-profile{% endblock %}
+
+{% block content %}
+<div class="sb-page-header">
+  <div class="container">
+    <div class="row align-items-center g-4">
+      <div class="col-auto">
+        {% if target.profile_image %}
+          <img src="{{ target.profile_image.url }}" alt="{{ target.username }}" class="sb-avatar sb-avatar--xl" style="border:4px solid var(--sb-border-strong)">
+        {% else %}
+          <span class="sb-avatar sb-avatar--text sb-avatar--xl">{{ target.first_name|default:target.username|slice:":1" }}</span>
+        {% endif %}
+      </div>
+      <div class="col">
+        <h1 class="fw-bold mb-1">{{ target.get_full_name|default:target.username }}</h1>
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+          {% if target.occupation %}<span class="sb-chip"><i class="bi bi-briefcase"></i> {{ target.occupation }}</span>{% endif %}
+          {% if target.location %}<span class="sb-chip"><i class="bi bi-geo-alt"></i> {{ target.location }}</span>{% endif %}
+          <span class="sb-badge sb-badge--role">{{ target.get_role_display }}</span>
+        </div>
+        <div class="d-flex flex-wrap align-items-center gap-3">
+          <span class="sb-rating-pill"><i class="bi bi-star-fill"></i> {{ avg_rating|floatformat:1 }} ({{ review_count }})</span>
+          <span class="sb-chip"><i class="bi bi-briefcase"></i> {{ target.completed_jobs }} completed jobs</span>
+        </div>
+      </div>
+      <div class="col-lg-auto d-flex gap-2">
+        {% if own_profile %}
+          <a href="{% url 'accounts:edit_profile' %}" class="sb-btn sb-btn-outline-primary"><i class="bi bi-pencil"></i> Edit profile</a>
+          <a href="{% url 'dashboard:home' %}" class="sb-btn sb-btn-primary"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        {% elif user.is_authenticated %}
+          <a href="mailto:{{ target.email }}" class="sb-btn sb-btn-primary"><i class="bi bi-envelope"></i> Contact</a>
+          {% if not is_own %}
+            <a href="{% url 'services:browse' %}?provider={{ target.username }}" class="sb-btn sb-btn-ghost d-none d-md-inline-flex">View services</a>
+          {% endif %}
+        {% else %}
+          <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="sb-btn sb-btn-primary"><i class="bi bi-envelope"></i> Contact</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="sb-section-sm">
+  <div class="container">
+    {% if own_profile %}
+      <div class="sb-card p-4 mb-4">
+        <div class="row align-items-center g-3">
+          <div class="col-md-4">
+            <div class="d-flex align-items-center gap-3">
+              <div class="sb-ring" style="--ring: calc({{ completion }} * 3.6deg)"><span>{{ completion }}%</span></div>
+              <div>
+                <div class="fw-bold">Profile completion</div>
+                <div class="sb-text-muted small">Boost it to get more bookings.</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-8">
+            <div class="row g-2 small">
+              {% for item in completion_checks %}
+                <div class="col-md-6 d-flex align-items-center gap-2">
+                  {% if item.done %}<i class="bi bi-check-circle-fill text-success"></i>
+                  {% else %}<i class="bi bi-circle text-muted"></i>{% endif %}
+                  <span class="{% if not item.done %}sb-text-muted{% endif %}">{{ item.label }}</span>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="row g-4">
+      <!-- Left column -->
+      <div class="col-lg-4">
+        <div class="sb-card p-4 mb-4">
+          <h6 class="fw-bold mb-3">About</h6>
+          <p class="sb-text-muted mb-0" style="white-space:pre-line">{{ target.bio|default:"This provider hasn't written a bio yet." }}</p>
+        </div>
+
+        {% if target.skills.all %}
+          <div class="sb-card p-4 mb-4">
+            <h6 class="fw-bold mb-3">Skills</h6>
+            <div class="d-flex flex-wrap gap-2">
+              {% for skill in target.skills.all %}
+                <a href="{% url 'services:browse' %}?category={{ skill.slug }}" class="sb-chip text-decoration-none"><i class="bi {{ skill.icon|default:'bi-tag' }}"></i> {{ skill.name }}</a>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+        {% if target.website %}
+          <div class="sb-card p-4">
+            <h6 class="fw-bold mb-3">Links</h6>
+            <a href="{{ target.website }}" target="_blank" rel="noopener" class="d-flex align-items-center gap-2"><i class="bi bi-globe"></i> {{ target.website }}</a>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Right column -->
+      <div class="col-lg-8">
+        {% if target.is_student and services %}
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0">Services</h5>
+            <span class="sb-chip">{{ services|length }} listed</span>
+          </div>
+          <div class="row g-4 mb-5">
+            {% for s in services %}
+              <div class="col-md-6">
+                {% include 'services/partials/service_card.html' with service=s %}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold mb-0">Reviews</h5>
+          {% if user.is_authenticated and not own_profile %}
+            <a href="{% url 'reviews:create' provider_pk=target.pk %}" class="sb-btn sb-btn-outline-primary sb-btn-sm"><i class="bi bi-star"></i> Write a review</a>
+          {% endif %}
+        </div>
+
+        {% for r in reviews %}
+          <div class="sb-card sb-review p-3 mb-3">
+            <span class="sb-avatar sb-avatar--text sb-avatar--sm">{{ r.client.first_name|default:r.client.username|slice:":1" }}</span>
+            <div class="flex-grow-1">
+              <div class="d-flex flex-wrap justify-content-between gap-2">
+                <div class="fw-bold small">{{ r.client.get_full_name|default:r.client.username }}</div>
+                <div class="sb-text-soft small">{{ r.created_at|date:"M j, Y" }}</div>
+              </div>
+              <div class="sb-stars mb-1" style="font-size:.85rem">
+                {% for i in "12345" %}
+                  <i class="bi bi-star-fill {% if forloop.counter > r.rating %}filled{% endif %}"></i>
+                {% endfor %}
+              </div>
+              <p class="mb-0 small sb-text-muted">{{ r.comment|default:"No comment." }}</p>
+            </div>
+            {% if user == r.client %}
+              <div class="d-flex flex-column gap-1">
+                <a href="{% url 'reviews:edit' pk=r.pk %}" class="small"><i class="bi bi-pencil"></i></a>
+                <form method="post" action="{% url 'reviews:delete' pk=r.pk %}" data-confirm-form data-confirm-message="Delete your review?">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-link text-danger small p-0" style="text-decoration:none"><i class="bi bi-trash"></i></button>
+                </form>
+              </div>
+            {% endif %}
+          </div>
+        {% empty %}
+          <div class="sb-card sb-empty py-5">
+            <div class="sb-empty-icon" style="width:64px;height:64px;font-size:1.6rem"><i class="bi bi-chat-square-text"></i></div>
+            <p class="mb-0">No reviews yet.</p>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
